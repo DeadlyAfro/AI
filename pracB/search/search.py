@@ -126,11 +126,11 @@ def createPath(state, parent):
     return path[::-1]
 
 def breadthFirstSearch(problem):
-     #list to hold closed nodes
+    #list to hold closed nodes
     closedset = {}
     #create stack for nodes to be searched
     openset = util.Queue()
-    #initiate the stack with the starting state
+    #initiate the queue with the starting state
     openset.push((problem.getStartState(), 'start'))
     #list to hold the state with its parent node
     parent = {}
@@ -154,8 +154,49 @@ def breadthFirstSearch(problem):
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
-    "*** YOUR CODE HERE ***"
-    print "Start:", problem.getSuccessors(problem.getStartState())
+    #list to hold closed nodes
+    closedset = {}
+    #create PriorityQueue for nodes to be searched, with the lambda function to take the cost as priority
+    openset = util.PriorityQueueWithFunction(lambda x: x[2])
+    #initiate the stack with the starting state
+    openset.push((problem.getStartState(), 'start', 0))
+    #list to hold the state with its parent node
+    parent = {}
+    #list to keep track of costs to all nodes
+    costs = {}
+    #initiate cost for starting state
+    costs[problem.getStartState()]= 0
+    #while we have nodes on the Queue
+    while not openset.isEmpty():
+        state = openset.pop()
+        #check if the node has not been visited
+        if closedset.has_key(state[0]):
+            continue
+        #add the state to the list for visited nodes
+        closedset[state[0]] = True
+        #if we found the goalstate, reconstruct the path
+        if problem.isGoalState(state[0]):
+            #variation on create path for this search method
+            path = []
+            while state[1] != 'start':
+                path.append(state[1])
+                state = parent[state[0]]
+            #return the path (in reversed order since we reconstructed it backwards)
+            return path[::-1]
+
+        else: #get the successor of the current state and if it is not visited yet add it to the stack and set its parent
+            for successor in problem.getSuccessors(state[0]):
+                cost = successor[2] + state[2]
+                if costs.has_key(successor[0]) and costs[successor[0]] > cost:
+                    openset.push((successor[0],successor[1], cost))
+                    costs[successor[0]]= cost
+                    parent[successor[0]] = state
+
+                if not closedset.has_key(successor[0]):
+                    if not costs.has_key(successor[0]):
+                        openset.push((successor[0],successor[1], cost))
+                        costs[successor[0]]= cost
+                        parent[successor[0]] = state
 
 def nullHeuristic(state, problem=None):
     """
