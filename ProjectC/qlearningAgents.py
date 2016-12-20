@@ -43,6 +43,7 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
+        self.states = {}
 
     def getQValue(self, state, action):
         """
@@ -51,8 +52,10 @@ class QLearningAgent(ReinforcementAgent):
           or the Q node value otherwise
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
-
+        if state not in self.states:
+            return 0.0
+        else:
+            return self.states(state)
 
     def computeValueFromQValues(self, state):
         """
@@ -62,7 +65,14 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        legalActions = self.getLegalActions(state)
+        if len(legalActions) == 0:
+            return 0.0
+        Qvalues = []
+        for action in legalActions:
+            Qvalues.append(self.getQValue(state, action),action)
+        max_action = max(Qvalues)[1]
+        return (state, max_action)
 
     def computeActionFromQValues(self, state):
         """
@@ -71,7 +81,11 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        legalActions = self.getLegalActions(state)
+        if len(legalActions) == 0:
+            return None
+        else:
+            return self.computeValueFromQValues(state)[1]
 
     def getAction(self, state):
         """
@@ -86,9 +100,13 @@ class QLearningAgent(ReinforcementAgent):
         """
         # Pick Action
         legalActions = self.getLegalActions(state)
-        action = None
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        if len(legalActions) == 0:
+            action = None
+        else:
+            if flipCoin(self.epsilon):
+                action = self.computeActionFromQValues(state)
+            else:
+                action = random.choice(legalActions)
 
         return action
 
